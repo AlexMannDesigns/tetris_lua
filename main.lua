@@ -1,8 +1,10 @@
+-- TO DO
+-- line count
+-- increase game-speed (levels)
+-- game over screen, 'push any key to restart'
+
 function love.load() --called once at begin of game
 	love.graphics.setBackgroundColor(255,255,255)
-
-	gridXcount = 10 --arena width
-	gridYcount = 18 --arena height
 
 	-- key for table: { {piece type {rotations}}, {piece type {rotations}}, {piece type {rotations}} }
 	pieceStructures = {
@@ -141,6 +143,11 @@ function love.load() --called once at begin of game
 	--varibable to set the fall speed of the tetrimino
 	timerLimit = 0.5
 
+	gridXcount = 10 --arena width
+	gridYcount = 18 --arena height
+
+	lineCount = 0 --tracks number of complete lines
+
 	function canPieceMove(testX, testY, testRotation) --function returns true or false after checking position in arena
 		for y = 1, pieceYcount do --check tetrimino 4x4 grid
 			for x = 1, pieceXcount do
@@ -185,7 +192,7 @@ function love.load() --called once at begin of game
 			newSequence()
 		end
 	end
-	
+
 	function reset()
 		inert = {} --creates a 2d array, reperesenting the arena
 		for y = 1, gridYcount do
@@ -197,6 +204,7 @@ function love.load() --called once at begin of game
 		newSequence() --creates new table of tetriminos
 		newPiece() -- sets new tetrimino
 		timer = 0
+		lineCount = 0
 	end
 
 	reset()
@@ -229,16 +237,18 @@ function love.update(dt)
 						break
 					end
 				end
-				if complete then --we have found a completed row, but we need to check above rows for other completions
+				if complete then --we have found a completed row
 					for removeY = y, 2, -1 do --subtract 1 until we get to 2. The top row does not need to be checked
 						for removeX = 1, gridXcount do
-							inert[removeY][removeX] = inert[removeY - 1][removeX]
+							inert[removeY][removeX] = inert[removeY - 1][removeX] --move blocks above line down by one
 						end
 					end
 
 					for removeX = 1, gridXcount do --sets top row of arena to blank
 						inert[1][removeX] = ' '
 					end
+
+					lineCount = lineCount + 1 --increment line counter for each complete line
 				end
 			end
 			newPiece()
@@ -347,4 +357,10 @@ function love.draw()
 			end
 		end
 	end
+	local str1 = "Lines: " .. lineCount
+	--local str2 = "test"
+	local color1 = {0,0,0}
+	--local color2 = {.97, .58, .77}
+	local coloredText = {color1, str1}
+	love.graphics.print(coloredText, 300, 200, 0, 1.25)
 end
