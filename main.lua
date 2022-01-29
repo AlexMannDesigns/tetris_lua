@@ -1,6 +1,4 @@
 -- TO DO
--- line count
--- increase game-speed (levels)
 -- game over screen, 'push any key to restart'
 
 function love.load() --called once at begin of game
@@ -147,6 +145,7 @@ function love.load() --called once at begin of game
 	gridYcount = 18 --arena height
 
 	lineCount = 0 --tracks number of complete lines
+	level = 0
 
 	function canPieceMove(testX, testY, testRotation) --function returns true or false after checking position in arena
 		for y = 1, pieceYcount do --check tetrimino 4x4 grid
@@ -204,7 +203,9 @@ function love.load() --called once at begin of game
 		newSequence() --creates new table of tetriminos
 		newPiece() -- sets new tetrimino
 		timer = 0
+		timerLimit = 0.5
 		lineCount = 0
+		level = 0
 	end
 
 	reset()
@@ -249,6 +250,10 @@ function love.update(dt)
 					end
 
 					lineCount = lineCount + 1 --increment line counter for each complete line
+					if lineCount % 5 == 0 then
+						level = level + 1
+						timerLimit = timerLimit * 0.9
+					end
 				end
 			end
 			newPiece()
@@ -358,9 +363,15 @@ function love.draw()
 		end
 	end
 	local str1 = "Lines: " .. lineCount
-	--local str2 = "test"
-	local color1 = {0,0,0}
-	--local color2 = {.97, .58, .77}
-	local coloredText = {color1, str1}
-	love.graphics.print(coloredText, 300, 200, 0, 1.25)
+	local str2 = "level: " .. level
+	local color1 = {.83, .54, .93}
+	local lineText = {color1, str1}
+	local levelText = {color1, str2}
+	font = love.graphics.newImageFont("awesomefont.png",
+		" abcdefghijklmnopqrstuvwxyz" ..
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+		"123456789.,!?-+/():;%&`'*#=[]\"")
+	love.graphics.setFont(font)
+	love.graphics.print(lineText, font, 300, 200)
+	love.graphics.print(levelText, font, 300, 230)
 end
