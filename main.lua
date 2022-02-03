@@ -1,5 +1,5 @@
 -- TO DO
--- game over/game start screen, 'push any key to restart'
+-- fix font on buttons
 
 local love = require "love" -- silences linter warnings for love functions
 local lg = love.graphics
@@ -153,15 +153,16 @@ local pieceStructures = {
 	},
 }
 
---tetr loops variable
+--tetr loops variables
 local pieceXcount = 4
 local pieceYcount = 4
 
---varibable to set the fall speed of the tetrimino
-local timerLimit = 0.5
+local timerLimit = 0.5 --varibable to set the fall speed of the tetrimino
 local gridXcount = 10 --arena width
 local gridYcount = 18 --arena height
 local lineCount = 0 --tracks number of complete lines
+
+local color1 = {.83, .54, .93}
 
 -- varibales below used across multiple functions --
 -- declared as local here to silence linter warnings and prevent problems as program grows
@@ -172,6 +173,7 @@ local pieceY
 local pieceRotation
 local pieceType
 local sequence
+local font
 
 function love.load() --called once at beginning of game
 	love.window.setTitle("TETRIS")
@@ -236,17 +238,21 @@ function love.update(dt)
 				newPiece()
 
 				if not canPieceMove(pieceX, pieceY, pieceRotation) then --restart game if new piece cant be moved
-					reset()
+					game.state["running"] = false
+					game.state["ended"] = true
 				end
 			end
 		end
+	elseif game.state["ended"] then
+		buttons.menu_state.play_game = button("Restart", startNewGame, nil, 120, 40)
+		buttons.menu_state.exit_game = button("Exit", love.event.quit, nil, 120, 40)
 	end
 end
 
 function love.mousepressed(x, y, click) -- detect mouse clicks
 	if not game.state["running"] then -- we only want mouse to work when game is not running
 		if click == 1 then
-			if game.state["menu"] then
+			if game.state["menu"] or game.state["ended"] then
 				for index in pairs(buttons.menu_state) do
 					buttons.menu_state[index]:checkPressed(x, y)
 				end
@@ -357,7 +363,6 @@ function love.draw()
 		end
 		local str1 = "Lines: " .. lineCount
 		local str2 = "level: " .. game.level
-		local color1 = {.83, .54, .93}
 		local lineText = {color1, str1}
 		local levelText = {color1, str2}
 		lg.setFont(font)
@@ -367,10 +372,17 @@ function love.draw()
 	elseif game.state["menu"] then
 		buttons.menu_state.play_game:draw(10, 20, 17, 10)
 		buttons.menu_state.exit_game:draw(10, 70, 17, 10)
+	elseif game.state["ended"] then
+		local str3 = "you cleared " .. lineCount .. " lines!"
+		local gameOverText = {color1, str3}
+		lg.print(gameOverText, font, 10, 20)
+		buttons.menu_state.play_game:draw(10, 50, 17, 10)
+		buttons.menu_state.exit_game:draw(10, 100, 17, 10)
 	end
 end
 
 function startNewGame()
+	game.state["ended"] = false
 	game.state["menu"] = false
 	game.state["running"] = true
 	reset()
