@@ -7,6 +7,7 @@ local button = require "Button" -- importing our button function as a 'class'
 
 -- playing with states...
 local game = {
+	level = 0,
 	state = {
 		menu = true,
 		running = false,
@@ -18,209 +19,167 @@ local buttons = {
 	menu_state = {}, -- this obj will contain all the buttons to be rendered when gamestate=menu
 }
 
-function startNewGame()
-	game.state["menu"] = false
-	game.state["running"] = true
-	-- key for table: { {piece type {rotations}}, {piece type {rotations}}, {piece type {rotations}} }
-	pieceStructures = {
-			{
-				{
-					{' ', ' ', ' ', ' '},
-					{'i', 'i', 'i', 'i'},
-					{' ', ' ', ' ', ' '},
-					{' ', ' ', ' ', ' '},
-				},
-				{
-					{' ', 'i', ' ', ' '},
-					{' ', 'i', ' ', ' '},
-					{' ', 'i', ' ', ' '},
-					{' ', 'i', ' ', ' '},
-				},
-			},
-			{
-				{
-					{' ', ' ', ' ', ' '},
-					{' ', 'o', 'o', ' '},
-					{' ', 'o', 'o', ' '},
-					{' ', ' ', ' ', ' '},
-				},
-			},
-			{
-				{
-	    	        {' ', ' ', ' ', ' '},
-	    	        {'j', 'j', 'j', ' '},
-	    	        {' ', ' ', 'j', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 'j', ' ', ' '},
-	    	        {' ', 'j', ' ', ' '},
-	    	        {'j', 'j', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {'j', ' ', ' ', ' '},
-	    	        {'j', 'j', 'j', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 'j', 'j', ' '},
-	    	        {' ', 'j', ' ', ' '},
-	    	        {' ', 'j', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-			},
-			{
-	    	    {
-	    	        {' ', ' ', ' ', ' '},
-	    	        {'l', 'l', 'l', ' '},
-	    	        {'l', ' ', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 'l', ' ', ' '},
-	    	        {' ', 'l', ' ', ' '},
-	    	        {' ', 'l', 'l', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', ' ', 'l', ' '},
-	    	        {'l', 'l', 'l', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {'l', 'l', ' ', ' '},
-	    	        {' ', 'l', ' ', ' '},
-	    	        {' ', 'l', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	},
-			{
-	    	    {
-	    	        {' ', ' ', ' ', ' '},
-	    	        {'t', 't', 't', ' '},
-	    	        {' ', 't', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 't', ' ', ' '},
-	    	        {' ', 't', 't', ' '},
-	    	        {' ', 't', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 't', ' ', ' '},
-	    	        {'t', 't', 't', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 't', ' ', ' '},
-	    	        {'t', 't', ' ', ' '},
-	    	        {' ', 't', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	},
-			{
-	    	    {
-	    	        {' ', ' ', ' ', ' '},
-	    	        {' ', 's', 's', ' '},
-	    	        {'s', 's', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {'s', ' ', ' ', ' '},
-	    	        {'s', 's', ' ', ' '},
-	    	        {' ', 's', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	},
-	    	{
-	    	    {
-	    	        {' ', ' ', ' ', ' '},
-	    	        {'z', 'z', ' ', ' '},
-	    	        {' ', 'z', 'z', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	    {
-	    	        {' ', 'z', ' ', ' '},
-	    	        {'z', 'z', ' ', ' '},
-	    	        {'z', ' ', ' ', ' '},
-	    	        {' ', ' ', ' ', ' '},
-	    	    },
-	    	},
-	}
-	--tetr loops variable
-	pieceXcount = 4
-	pieceYcount = 4
-	--varibable to set the fall speed of the tetrimino
-	timerLimit = 0.5
-	gridXcount = 10 --arena width
-	gridYcount = 18 --arena height
-	lineCount = 0 --tracks number of complete lines
-	level = 0
-	function canPieceMove(testX, testY, testRotation) --function returns true or false after checking position in arena
-		for y = 1, pieceYcount do --check tetrimino 4x4 grid
-			for x = 1, pieceXcount do
-				local testBlockX = testX + x
-				local testBlockY = testY + y
-				if pieceStructures[pieceType][testRotation][y][x] ~= ' ' and (
-					testBlockX < 1
-					or testBlockX > gridXcount
-					or testBlockY > gridYcount
-					or inert[testBlockY][testBlockX] ~= ' '
-				) then
-					return false
-				end
-			end
-		end
-		return true
-	end
-	function newSequence() --generates a table of randomly ordered tetriminos
-		sequence = {}
-		for pieceTypeIndex = 1, #pieceStructures do -- loop through all tetriminos
-			local position = love.math.random(#sequence + 1) -- set position in table to random, arg is top of range, bottom defaults to 1
-			table.insert(
-				sequence, -- name of table
-				position, -- index in table (random number)
-				pieceTypeIndex -- value to be inserted (1 - number of tetriminos, sequentially)
-			)
-		end
-	end
-	function newPiece()
-		--below coords are fed into the draw block function to set location of tetrimino
-		pieceX = 3
-		pieceY = 0
-		--below coords refer to tetrimino shape and rotation in above table
-		pieceRotation = 1
-		pieceType = table.remove(sequence) --tetrimino taken from end of table
-		if #sequence == 0 then --new table generated when sequence length is 0
-			newSequence()
-		end
-	end
-	function reset()
-		inert = {} --creates a 2d array, reperesenting the arena
-		for y = 1, gridYcount do
-			inert[y] = {}
-			for x = 1, gridXcount do
-				inert[y][x] = ' '
-			end
-		end
-		newSequence() --creates new table of tetriminos
-		newPiece() -- sets new tetrimino
-		timer = 0
-		timerLimit = 0.5
-		lineCount = 0
-		level = 0
-	end
-	reset()
-end
+-- below variales either do not change or are always same value when game starts --
+
+-- key for table: { {piece type {rotations}}, {piece type {rotations}}, {piece type {rotations}} }
+local pieceStructures = {
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{'i', 'i', 'i', 'i'},
+			{' ', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 'i', ' ', ' '},
+			{' ', 'i', ' ', ' '},
+			{' ', 'i', ' ', ' '},
+			{' ', 'i', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{' ', 'o', 'o', ' '},
+			{' ', 'o', 'o', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{'j', 'j', 'j', ' '},
+			{' ', ' ', 'j', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 'j', ' ', ' '},
+			{' ', 'j', ' ', ' '},
+			{'j', 'j', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{'j', ' ', ' ', ' '},
+			{'j', 'j', 'j', ' '},
+			{' ', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 'j', 'j', ' '},
+			{' ', 'j', ' ', ' '},
+			{' ', 'j', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{'l', 'l', 'l', ' '},
+			{'l', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 'l', ' ', ' '},
+			{' ', 'l', ' ', ' '},
+			{' ', 'l', 'l', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', ' ', 'l', ' '},
+			{'l', 'l', 'l', ' '},
+			{' ', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{'l', 'l', ' ', ' '},
+			{' ', 'l', ' ', ' '},
+			{' ', 'l', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{'t', 't', 't', ' '},
+			{' ', 't', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 't', ' ', ' '},
+			{' ', 't', 't', ' '},
+			{' ', 't', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 't', ' ', ' '},
+			{'t', 't', 't', ' '},
+			{' ', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 't', ' ', ' '},
+			{'t', 't', ' ', ' '},
+			{' ', 't', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{' ', 's', 's', ' '},
+			{'s', 's', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{'s', ' ', ' ', ' '},
+			{'s', 's', ' ', ' '},
+			{' ', 's', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+	{
+		{
+			{' ', ' ', ' ', ' '},
+			{'z', 'z', ' ', ' '},
+			{' ', 'z', 'z', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+		{
+			{' ', 'z', ' ', ' '},
+			{'z', 'z', ' ', ' '},
+			{'z', ' ', ' ', ' '},
+			{' ', ' ', ' ', ' '},
+		},
+	},
+}
+
+--tetr loops variable
+local pieceXcount = 4
+local pieceYcount = 4
+
+--varibable to set the fall speed of the tetrimino
+local timerLimit = 0.5
+local gridXcount = 10 --arena width
+local gridYcount = 18 --arena height
+local lineCount = 0 --tracks number of complete lines
+
+-- varibales below used across multiple functions --
+-- declared as local here to silence linter warnings and prevent problems as program grows
+local inert
+local timer
+local pieceX
+local pieceY
+local pieceRotation
+local pieceType
+local sequence
 
 function love.load() --called once at beginning of game
 	love.window.setTitle("TETRIS")
 	lg.setBackgroundColor(255,255,255)
+	font = lg.newImageFont("awesomefont.png",
+		" abcdefghijklmnopqrstuvwxyz" ..
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+		"123456789.,!?-+/():;%&`'*#=[]\"")
 
 	if game.state["menu"] then
 		buttons.menu_state.exit_game = button("Exit", love.event.quit, nil, 120, 40) -- event.quit function closes love
@@ -269,7 +228,7 @@ function love.update(dt)
 
 						lineCount = lineCount + 1 --increment line counter for each complete line
 						if lineCount % 5 == 0 then
-							level = level + 1
+							game.level = game.level + 1
 							timerLimit = timerLimit * 0.9
 						end
 					end
@@ -397,20 +356,80 @@ function love.draw()
 			end
 		end
 		local str1 = "Lines: " .. lineCount
-		local str2 = "level: " .. level
+		local str2 = "level: " .. game.level
 		local color1 = {.83, .54, .93}
 		local lineText = {color1, str1}
 		local levelText = {color1, str2}
-		font = lg.newImageFont("awesomefont.png",
-			" abcdefghijklmnopqrstuvwxyz" ..
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
-			"123456789.,!?-+/():;%&`'*#=[]\"")
 		lg.setFont(font)
 		lg.print(lineText, font, 300, 200)
 		lg.print(levelText, font, 300, 230)
 
 	elseif game.state["menu"] then
-		buttons.menu_state.play_game:draw(300, 100, 17, 10)
-		buttons.menu_state.exit_game:draw(300, 150, 17, 10)
+		buttons.menu_state.play_game:draw(10, 20, 17, 10)
+		buttons.menu_state.exit_game:draw(10, 70, 17, 10)
 	end
+end
+
+function startNewGame()
+	game.state["menu"] = false
+	game.state["running"] = true
+	reset()
+end
+
+function canPieceMove(testX, testY, testRotation) --function returns true or false after checking position in arena
+	for y = 1, pieceYcount do --check tetrimino 4x4 grid
+		for x = 1, pieceXcount do
+			local testBlockX = testX + x
+			local testBlockY = testY + y
+			if pieceStructures[pieceType][testRotation][y][x] ~= ' ' and (
+				testBlockX < 1
+				or testBlockX > gridXcount
+				or testBlockY > gridYcount
+				or inert[testBlockY][testBlockX] ~= ' '
+			) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function newSequence() --generates a table of randomly ordered tetriminos
+	sequence = {}
+	for pieceTypeIndex = 1, #pieceStructures do -- loop through all tetriminos
+		local position = love.math.random(#sequence + 1) -- set position in table to random, arg is top of range, bottom defaults to 1
+		table.insert(
+			sequence, -- name of table
+			position, -- index in table (random number)
+			pieceTypeIndex -- value to be inserted (1 - number of tetriminos, sequentially)
+		)
+	end
+end
+
+function newPiece()
+	--below coords are fed into the draw block function to set location of tetrimino
+	pieceX = 3
+	pieceY = 0
+	--below coords refer to tetrimino shape and rotation in above table
+	pieceRotation = 1
+	pieceType = table.remove(sequence) --tetrimino taken from end of table
+	if #sequence == 0 then --new table generated when sequence length is 0
+		newSequence()
+	end
+end
+
+function reset()
+	inert = {} --creates a 2d array, reperesenting the arena
+	for y = 1, gridYcount do
+		inert[y] = {}
+		for x = 1, gridXcount do
+			inert[y][x] = ' '
+		end
+	end
+	newSequence() --creates new table of tetriminos
+	newPiece() -- sets new tetrimino
+	timer = 0
+	timerLimit = 0.5
+	lineCount = 0
+	game.level = 0
 end

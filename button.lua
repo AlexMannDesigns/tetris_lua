@@ -15,7 +15,7 @@ function Button(text, func, func_param, width, height)
 
 		checkPressed = function(self, mouse_x, mouse_y) -- check click has happened within the boundaries of the button
 			if (mouse_x >= self.button_x) and (mouse_x <= self.button_x + self.width) then
-			 	if (mouse_y >= self.button_y) and (mouse_y <= self.button_x + self.height) then
+			 	if (mouse_y >= self.button_y) and (mouse_y <= self.button_y + self.height) then
 					if self.func_param then
 						self.func(self.func_param) --if function has params, call with args
 					else
